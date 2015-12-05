@@ -19,15 +19,14 @@
                           returned.}
 }
 \value{
-    If \code{save.residuals} is \code{FALSE} (default), an array (or data frame,
-    if \code{vars} contains a single element) of regression coefficient
-    estimates (\code{coef}), standard errors (\code{coef.se}), and corresponding
-    \eqn{p}-values (\code{pval}).
-
-    If \code{save.residuals} is \code{TRUE}, a list with elements:
-    \item{coefs}{the array or data frame obtained by setting
-                 \code{save.residuals} to \code{FALSE}.}
-    \item{residuals}{a matrix of model residuals.}
+    A list with elements:
+    \item{coefficients}{if `vars` is missing or non-empty, an array (or data
+                        frame, if \code{vars} contains a single element) of
+                        regression coefficient estimates (\code{coef}), standard
+                        errors (\code{coef.se}), and corresponding
+                        \eqn{p}-values (\code{pval}).}
+    \item{residuals}{if \code{save.residuals} is \code{TRUE}, a matrix of model
+                     residuals.}
 }
 \examples{
     coefs <- matrix(runif(6*10), 6, 10)

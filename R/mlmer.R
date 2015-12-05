@@ -48,10 +48,11 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
 
     mm <- lf$X
     idx <- which(attr(lf$X, "assign") %in% match(vars, labs))
-    vars <- colnames(mm)[idx]
-    if (length(vars) == 0) {
+    if (length(idx) == 0 & !save.residuals) {
         stop("No variables selected")
     }
+    save.coefs <- !(length(idx) == 0 & save.residuals)
+    vars <- colnames(mm)[idx]
     colnames(mm) <- sprintf("V%d", 1:ncol(mm))
     new.vars <- colnames(mm)[idx]
     formula <- as.formula(sprintf("y ~ %s - 1",
@@ -61,9 +62,11 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
     ))
     model.data <- cbind(mm, lf$reTrms$flist)
 
-    coefs <- array(NA, c(ncol(Y), length(vars), 3),
-                   dimnames=list(colnames(Y), vars,
-                                 c("coef", "coef.se", "pval")))
+    if (save.coefs) {
+        coefs <- array(NA, c(ncol(Y), length(vars), 3),
+                       dimnames=list(colnames(Y), vars,
+                                     c("coef", "coef.se", "pval")))
+    }
 
     if (save.residuals) {
         residuals <- matrix(NA, nrow(Y), ncol(Y), dimnames=dimnames(Y))
@@ -76,7 +79,10 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
         })
     }
 
-    opts <- options(warn=2)
+    opts <- options(
+        show.error.messages=FALSE,
+        warn=2
+    )
     on.exit(options(opts))
 
     for (i in 1:ncol(Y)) {
@@ -91,63 +97,61 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
             next
         }
 
-        tmp <- try(coef(summary(model)), silent=TRUE)
-        if (inherits(tmp, "try-error")) {
-            next
-        }
+        if (save.coefs) {
+            tmp <- try(coef(summary(model)), silent=TRUE)
+            if (inherits(tmp, "try-error")) {
+                next
+            }
 
-        for (j in 1:length(vars)) if (new.vars[j] %in% rownames(tmp)) {
-            coefs[i,vars[j],"coef"] <- tmp[new.vars[j],"Estimate"]
-            coefs[i,vars[j],"coef.se"] <- tmp[new.vars[j],"Std. Error"]
+            for (j in 1:length(vars)) if (new.vars[j] %in% rownames(tmp)) {
+                coefs[i,vars[j],"coef"] <- tmp[new.vars[j],"Estimate"]
+                coefs[i,vars[j],"coef.se"] <- tmp[new.vars[j],"Std. Error"]
 
-            if (!lrt) {
-                coefs[i,vars[j],"pval"] <-
-                    2 * pt(abs(tmp[new.vars[j],"t value"]),
-                               df=df.residual(model), lower.tail=FALSE)
-            } else {
-                lrt.formula <- as.formula(sprintf(". ~ . - %s", new.vars[j]))
-                model0 <- try(update(model, lrt.formula), silent=TRUE)
-                if (inherits(model0, "try-error")) {
-                    next
+                if (!lrt) {
+                    coefs[i,vars[j],"pval"] <-
+                        2 * pt(abs(tmp[new.vars[j],"t value"]),
+                                   df=df.residual(model), lower.tail=FALSE)
+                } else {
+                    lrt.formula <- as.formula(sprintf(". ~ . - %s", new.vars[j]))
+                    model0 <- try(update(model, lrt.formula), silent=TRUE)
+                    if (inherits(model0, "try-error")) {
+                        next
+                    }
+                    coefs[i,vars[j],"pval"] <-
+                        anova(model0, model)["model","Pr(>Chisq)"]
                 }
-                coefs[i,vars[j],"pval"] <-
-                    anova(model0, model)["model","Pr(>Chisq)"]
             }
         }
 
         if (save.residuals) {
-            residuals[,j] <- resid(model, type="response")
+            residuals[,i] <- resid(model, type="response")
         }
 
         if (save.ranks) {
-            ranks <- lapply(ranef.ranks(model), function(x) {
+            tmp <- lapply(ranef.ranks(model), function(x) {
                 diag(length(x))[x,]
             })
-            for (g in names(ranks)) {
-                ranks[[g]] <- ranks[[g]] + ranks[[g]]
+            for (g in names(tmp)) {
+                ranks[[g]] <- ranks[[g]] + tmp[[g]]
             }
         }
     }
 
-    if (length(vars) == 1) {
+    if (save.coefs & length(vars) == 1) {
         coefs <- as.data.frame(coefs[,1,])
     }
 
-    tmp <- list(coefs=coefs)
-
+    tmp <- list()
+    if (save.coefs) {
+        tmp$coefficients <- coefs
+    }
     if (save.residuals) {
-        tmp <- c(tmp, residuals=residuals)
+        tmp$residuals <- residuals
     }
-
     if (save.ranks) {
-        tmp <- c(tmp, ranef.ranks=ranks)
+        tmp$ranef.ranks <- ranks
     }
-
-    if (length(tmp) == 1) {
-        tmp$coefs
-    } else {
-        tmp
-    }
+    tmp
 }
 
 ranks.heatmap <- function(x, col="red") {

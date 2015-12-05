@@ -23,20 +23,17 @@
                       returned.}
 }
 \value{
-    If \code{save.ranks} is \code{TRUE} (default), a list with elements:
-    \item{coefs}{an array (or data frame, if \code{vars} contains a single
-                 element) of regression coefficient estimates (\code{coef}),
-                 standard errors (\code{coef.se}), and corresponding
-                 \eqn{p}-values (\code{pval}).}
-    \item{ranef.ranks}{a list of rank matrices (one per random effect) that can
-                       be visualized using \code{\link{ranks.heatmap}}.}
-
-    If \code{save.residuals} is additionally \code{TRUE}, the list also
-    includes:
-    \item{residuals}{a matrix of model residuals.}
-
-    If both \code{save.ranks} and \code{save.residuals} are \code{FALSE}, only
-    \code{coefs} is returned (similarly to \code{\link{mlm}}).
+    A list with elements:
+    \item{coefficients}{if `vars` is missing or non-empty, an array (or data
+                        frame, if \code{vars} contains a single element) of
+                        regression coefficient estimates (\code{coef}), standard
+                        errors (\code{coef.se}), and corresponding
+                        \eqn{p}-values (\code{pval}).}
+    \item{residuals}{if \code{save.residuals} is \code{TRUE}, a matrix of model
+                     residuals.}
+    \item{ranef.ranks}{if \code{save.ranks} is \code{TRUE} (default), a list of
+                       rank matrices (one per random effect) that can be
+                       visualized using \code{\link{ranks.heatmap}}.}
 }
 \seealso{
     \code{\link{lmer}} and \code{\link{mlm}}
