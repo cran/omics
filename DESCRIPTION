@@ -1,6 +1,6 @@
 Package: omics
-Version: 0.1-1
-Date: 2015-12-05
+Version: 0.1-2
+Date: 2015-01-25
 License: GPL (>= 2)
 Title: '--omics' Data Analysis Toolbox
 Description: A collection of functions to analyse '--omics' datasets such as DNA
@@ -12,9 +12,10 @@ Authors@R: c(
     ))
 Depends: R (>= 3.0.0), methods
 Imports: lme4, pheatmap
+Suggests: testthat
 NeedsCompilation: no
-Packaged: 2015-12-05 16:23:48 UTC; gc
+Packaged: 2016-01-25 18:41:23 UTC; gc
 Author: Gianluca Campanella [aut, cre]
 Maintainer: Gianluca Campanella <gianluca@campanella.org>
 Repository: CRAN
-Date/Publication: 2015-12-05 18:34:24
+Date/Publication: 2016-01-26 00:36:30

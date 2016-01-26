@@ -1,13 +1,13 @@
-ded143d1e687746d49ade614a64154d4 *DESCRIPTION
+7ad9a1bfe1e1595ad25769a07755a5e8 *DESCRIPTION
 712cc010e537194e22f5aa01eed81f7a *NAMESPACE
 bf9009157fb063a7279feb52ce56b322 *R/cpma.R
-62461d6053ac65efeb5858770f545507 *R/mlm.R
-bccf4906f68afef4631f74063739b4de *R/mlmer.R
+44b75bdace67375b22c0ec7c135e322d *R/mlm.R
+b2f4ea4189e5b482d8637c88ef8ce610 *R/mlmer.R
 088fd30427b6891c91e055d5b14949f6 *R/pqq.R
 d5b65a942dc4c371931ce3fdd4ccba4e *R/private.R
 8f92bbd6fe9a4c91eac5616f20d2bf2a *R/setutils.R
 b05a807581b5862dd258d0ad2106335f *R/utils.R
-18d6c70ff01b3d16e73aa8d8c7876c8d *inst/NEWS.Rd
+08aeb0c6d9adcaee89bc4aaa4794c578 *inst/NEWS.Rd
 e7dd39b04c1b7cb1dbf9cc070c37cc53 *man/cpma.Rd
 db6140d65f8ad76286590230a97090d5 *man/mlm.Rd
 91b67d298aa3d1dfbfe322a0435062f9 *man/mlmer.Rd
@@ -18,3 +18,5 @@ db6140d65f8ad76286590230a97090d5 *man/mlm.Rd
 bb08a9f9b80a733b7da4c6a6bbb0f7f1 *man/re.match.Rd
 d5fcf9f2632027df0414af326538b129 *man/setutils.Rd
 0be1e6423c4a7509f0d1efe5c01e2ef8 *man/var.components.Rd
+a7bfb91717e149e07fd6d45e0cd23e3b *tests/testthat.R
+e5d3ad7e50793bb41bfab77383b9e529 *tests/testthat/test-models.R

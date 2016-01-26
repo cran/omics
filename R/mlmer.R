@@ -31,15 +31,15 @@ ranef.ranks.merMod <- function(model, groups) {
 
 mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
                   save.ranks=TRUE) {
-    Y <- get(response.name(formula))
+    Y <- get(response.name(formula), envir=environment(formula))
 
     lf <- lFormula(update(formula, "NULL ~ ."), data, REML=FALSE,
-                   na.action=na.omit,
-                   control=lmerControl(check.formula.LHS="ignore"))
-
-    if (!is.null(attr(lf, "na.action"))) {
-        Y <- Y[-attr(lf, "na.action"),]
-    }
+                   na.action=na.pass,
+                   control=lmerControl(check.nobs.vs.nlev="ignore",
+                                       check.nobs.vs.nRE="ignore",
+                                       check.rankX="ignore",
+                                       check.scaleX="ignore",
+                                       check.formula.LHS="ignore"))
 
     labs <- as.character(attr(terms(lf$fr), "predvars.fixed")[-1])
     if (missing(vars)) {
@@ -61,6 +61,8 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
         ), collapse=" + ")
     ))
     model.data <- cbind(mm, lf$reTrms$flist)
+
+    ns <- rep(NA, ncol(Y))
 
     if (save.coefs) {
         coefs <- array(NA, c(ncol(Y), length(vars), 3),
@@ -87,15 +89,16 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
 
     for (i in 1:ncol(Y)) {
         model.data$y <- Y[,i]
-        data.subset <- model.data[!is.na(model.data$y),]
 
         model <- try(
-            lmer(formula, data=data.subset, REML=FALSE, na.action=na.exclude),
+            lmer(formula, data=model.data, REML=FALSE, na.action=na.exclude),
             silent=TRUE
         )
         if (inherits(model, "try-error")) {
             next
         }
+
+        ns[i] <- nobs(model)
 
         if (save.coefs) {
             tmp <- try(coef(summary(model)), silent=TRUE)
@@ -113,12 +116,15 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
                                    df=df.residual(model), lower.tail=FALSE)
                 } else {
                     lrt.formula <- as.formula(sprintf(". ~ . - %s", new.vars[j]))
-                    model0 <- try(update(model, lrt.formula), silent=TRUE)
+                    model0 <- try(update(model, lrt.formula, data=model@frame),
+                                  silent=TRUE)
                     if (inherits(model0, "try-error")) {
                         next
                     }
+                    chisq <- 2 * max(0, logLik(model) - logLik(model0))
+                    df <- attr(logLik(model), "df") - attr(logLik(model0), "df")
                     coefs[i,vars[j],"pval"] <-
-                        anova(model0, model)["model","Pr(>Chisq)"]
+                        pchisq(chisq, df, lower.tail=FALSE)
                 }
             }
         }
@@ -141,7 +147,9 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
         coefs <- as.data.frame(coefs[,1,])
     }
 
-    tmp <- list()
+    tmp <- list(
+        nobs=ns
+    )
     if (save.coefs) {
         tmp$coefficients <- coefs
     }

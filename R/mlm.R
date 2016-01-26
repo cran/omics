@@ -1,13 +1,9 @@
 mlm <- function(formula, data, vars, save.residuals=FALSE) {
-    Y <- get(response.name(formula))
+    Y <- get(response.name(formula), envir=environment(formula))
 
     formula <- update(formula, "NULL ~ .")
-    mf <- model.frame(formula, data, na.action=na.omit, drop.unused.levels=TRUE)
+    mf <- model.frame(formula, data, na.action=na.pass, drop.unused.levels=TRUE)
     mm <- model.matrix(formula, mf)
-
-    if (!is.null(attr(mf, "na.action"))) {
-        Y <- Y[-attr(mf, "na.action"),]
-    }
 
     labs <- labels(terms(formula))
     if (missing(vars)) {
@@ -26,6 +22,8 @@ mlm <- function(formula, data, vars, save.residuals=FALSE) {
     formula <- as.formula(sprintf("y ~ %s - 1",
         paste0(colnames(mm), collapse=" + ")
     ))
+
+    ns <- rep(NA, ncol(Y))
 
     if (save.coefs) {
         coefs <- array(NA, c(ncol(Y), length(vars), 3),
@@ -51,6 +49,8 @@ mlm <- function(formula, data, vars, save.residuals=FALSE) {
             next
         }
 
+        ns[i] <- nobs(model)
+
         if (save.coefs) {
             tmp <- try(coef(summary(model)), silent=TRUE)
             if (inherits(tmp, "try-error")) {
@@ -73,7 +73,9 @@ mlm <- function(formula, data, vars, save.residuals=FALSE) {
         coefs <- as.data.frame(coefs[,1,])
     }
 
-    tmp <- list()
+    tmp <- list(
+        nobs=ns
+    )
     if (save.coefs) {
         tmp$coefficients <- coefs
     }
