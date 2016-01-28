@@ -81,12 +81,6 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
         })
     }
 
-    opts <- options(
-        show.error.messages=FALSE,
-        warn=2
-    )
-    on.exit(options(opts))
-
     for (i in 1:ncol(Y)) {
         model.data$y <- Y[,i]
 
@@ -134,11 +128,10 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
         }
 
         if (save.ranks) {
-            tmp <- lapply(ranef.ranks(model), function(x) {
-                diag(length(x))[x,]
-            })
-            for (g in names(tmp)) {
-                ranks[[g]] <- ranks[[g]] + tmp[[g]]
+            tmp <- ranef.ranks(model)
+            for (g in names(tmp)) for (j in 1:length(tmp[[g]])) {
+                ranks[[g]][names(tmp[[g]])[j],tmp[[g]][j]] <-
+                    ranks[[g]][names(tmp[[g]])[j],tmp[[g]][j]] + 1
             }
         }
     }

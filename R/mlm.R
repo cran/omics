@@ -35,12 +35,6 @@ mlm <- function(formula, data, vars, save.residuals=FALSE) {
         residuals <- matrix(NA, nrow(Y), ncol(Y), dimnames=dimnames(Y))
     }
 
-    opts <- options(
-        show.error.messages=FALSE,
-        warn=2
-    )
-    on.exit(options(opts))
-
     for (i in 1:ncol(Y)) {
         mm$y <- Y[,i]
 
