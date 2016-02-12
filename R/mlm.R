@@ -1,4 +1,9 @@
 mlm <- function(formula, data, vars, save.residuals=FALSE) {
+    if (missing(data)) {
+        data <- NULL
+    }
+    formula <- as.formula(terms(formula, data=data))
+
     Y <- get(response.name(formula), envir=environment(formula))
 
     formula <- update(formula, "NULL ~ .")

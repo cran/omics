@@ -11,6 +11,7 @@ importFrom(lme4,
     lFormula,
     lmer,
     lmerControl,
+    nobars,
     ranef,
     VarCorr
 )

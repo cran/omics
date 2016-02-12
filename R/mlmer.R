@@ -31,6 +31,11 @@ ranef.ranks.merMod <- function(model, groups) {
 
 mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
                   save.ranks=TRUE) {
+    if (missing(data)) {
+        data <- NULL
+    }
+    formula <- as.formula(terms(formula, data=data))
+
     Y <- get(response.name(formula), envir=environment(formula))
 
     lf <- lFormula(update(formula, "NULL ~ ."), data, REML=FALSE,
@@ -41,7 +46,7 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
                                        check.scaleX="ignore",
                                        check.formula.LHS="ignore"))
 
-    labs <- as.character(attr(terms(lf$fr), "predvars.fixed")[-1])
+    labs <- labels(terms(nobars(formula)))
     if (missing(vars)) {
         vars <- labs
     }
@@ -60,7 +65,8 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
             sprintf("(%s)", findbars(formula)), colnames(mm)
         ), collapse=" + ")
     ))
-    model.data <- cbind(mm, lf$reTrms$flist)
+    re.labs <- as.character(attr(terms(lf$fr), "predvars.random")[-1])
+    model.data <- data.frame(mm, mget(re.labs, as.environment(lf$fr)))
 
     ns <- rep(NA, ncol(Y))
 
@@ -166,4 +172,3 @@ ranks.heatmap <- function(x, col="red") {
              cluster_rows=FALSE, cluster_cols=FALSE)
     invisible(NULL)
 }
-
