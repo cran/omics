@@ -28,7 +28,7 @@ mlm <- function(formula, data, vars, save.residuals=FALSE) {
         paste0(colnames(mm), collapse=" + ")
     ))
 
-    ns <- rep(NA, ncol(Y))
+    ns <- structure(rep(NA, ncol(Y)), names=colnames(Y))
 
     if (save.coefs) {
         coefs <- array(NA, c(ncol(Y), length(vars), 3),

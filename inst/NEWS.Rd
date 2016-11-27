@@ -1,5 +1,11 @@
 \name{NEWS}
 \title{NEWS file for the omics package}
+\section{Changes in version 0.1-5 (2016-11-27)}{
+    \itemize{
+        \item{\code{mlm} and \code{mlmer} now return `nobs` with names.}
+        \item{Updated \code{mlmer} to reflect changes in \code{lmer}.}
+    }
+}
 \section{Changes in version 0.1-4 (2016-02-08)}{
     \itemize{
         \item{\code{mlm} and \code{mlmer} can now handle `.` in model formulae.}

@@ -6,34 +6,20 @@ p <- 5
 k <- 2
 
 X <- matrix(runif(n*p), n, p)
-X[sample.int(n*p, n*p*0.05)] <- NA
+for (i in 1:n) for (j in 1:p) {
+    if (runif(1) < 0.05) {
+        X[i,j] <- NA
+    }
+}
 X <- data.frame(X, as.factor(sample.int(k, n, replace=TRUE)))
 colnames(X) <- c(paste0("x", 1:p), "g")
 
 Y <- matrix(runif(n*m), n, m)
-Y[sample.int(n*m, n*m*0.05)] <- NA
-
-test_that("mlm functions as expected", {
-    ref.formula <- sprintf("Y[,1] ~ %s", paste(paste0("x", 1:p), collapse=" + "))
-    ref <- lm(as.formula(ref.formula), data=X, na.action=na.exclude)
-    ref.coef <- coef(summary(ref))
-
-    test.formula <- sprintf("Y ~ %s", paste(paste0("x", 1:p), collapse=" + "))
-    test <- mlm(as.formula(test.formula), data=X, save.residuals=TRUE)
-
-    expect_is(test, "list")
-
-    expect_named(test, c("nobs", "coefficients", "residuals"),
-                 ignore.order=TRUE)
-
-    expect_equivalent(nobs(test)[1], nobs(ref))
-
-    expect_equivalent(coef(test)[1,,"coef"], ref.coef[-1,"Estimate"])
-    expect_equivalent(coef(test)[1,,"coef.se"], ref.coef[-1,"Std. Error"])
-    expect_equivalent(coef(test)[1,,"pval"], ref.coef[-1,"Pr(>|t|)"])
-
-    expect_equivalent(resid(test)[,1], resid(ref))
-})
+for (i in 1:n) for (j in 1:m) {
+    if (runif(1) < 0.05) {
+        Y[i,j] <- NA
+    }
+}
 
 test_that("mlmer functions as expected", {
     require(lme4)

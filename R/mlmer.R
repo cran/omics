@@ -34,19 +34,19 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
     if (missing(data)) {
         data <- NULL
     }
-    formula <- as.formula(terms(formula, data=data))
 
-    Y <- get(response.name(formula), envir=environment(formula))
+    Y <- get(response.name(formula, data=data), envir=environment(formula))
 
-    lf <- lFormula(update(formula, "NULL ~ ."), data, REML=FALSE,
-                   na.action=na.pass,
+    tmp <- formula
+    tmp[[2]] <- NULL
+    lf <- lFormula(tmp, data, REML=FALSE, na.action=na.pass,
                    control=lmerControl(check.nobs.vs.nlev="ignore",
                                        check.nobs.vs.nRE="ignore",
                                        check.rankX="ignore",
                                        check.scaleX="ignore",
                                        check.formula.LHS="ignore"))
 
-    labs <- labels(terms(nobars(formula)))
+    labs <- labels(terms(nobars(formula), data=data))
     if (missing(vars)) {
         vars <- labs
     }
@@ -68,7 +68,7 @@ mlmer <- function(formula, data=NULL, vars, lrt=TRUE, save.residuals=FALSE,
     re.labs <- as.character(attr(terms(lf$fr), "predvars.random")[-1])
     model.data <- data.frame(mm, mget(re.labs, as.environment(lf$fr)))
 
-    ns <- rep(NA, ncol(Y))
+    ns <- structure(rep(NA, ncol(Y)), names=colnames(Y))
 
     if (save.coefs) {
         coefs <- array(NA, c(ncol(Y), length(vars), 3),
